@@ -1,0 +1,121 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- master
+- develop
+- feature/**
+
+pr:
+- master
+- main
+- develop
+
+pool:
+  vmImage: ubuntu-latest
+
+strategy:
+  matrix:
+    Python311:
+      python.version: '3.11'
+
+variables:
+  proj1Key: 'manishahaulbert-csbytes_proj1'
+  proj2Key: 'manishahaulbert-csbytes_proj2'
+
+steps:
+- checkout: self
+  fetchDepth: 0
+  lfs: true
+  displayName: 'Checkout Source Code'
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+# 1. Detect Changes
+- script: |
+    # Check for changes in specific directories
+    CHANGED_FILES=$(git diff --name-only HEAD~1)
+    echo "Files changed: $CHANGED_FILES"
+    
+    if echo "$CHANGED_FILES" | grep -q "proj1"; then
+      echo "##vso[task.setvariable variable=runProj1;isOutput=true]true"
+      echo "Detected changes in Proj1"
+    fi
+    
+    if echo "$CHANGED_FILES" | grep -q "proj2"; then
+      echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
+      echo "Detected changes in Proj2"
+    fi
+  name: DetermineChanges
+  displayName: 'Detect Changed projects'
+
+# 2. Install Dependencies (Global)
+- script: |
+    python -m pip install --upgrade pip
+    pip install pytest pytest-cov
+  displayName: 'Install Base Tools'
+
+# --- Proj1 Block ---
+- script: |
+    pip install -e ./proj1
+    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
+    pytest proj1/tests \
+      --junitxml=proj1-results.xml \
+      --cov=proj1 \
+      --cov-report=xml:proj1-coverage.xml
+  displayName: 'Run Proj1 Tests'
+  condition: eq(variables['DetermineChanges.runProj1'], 'true')
+
+- task: SonarQubePrepare@8
+  condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runProj1'], 'true'))
+  inputs:
+    SonarQube: 'monorepo20261'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '$(proj1Key)'
+    extraProperties: |
+      sonar.projectBaseDir=proj1
+      sonar.sources=.
+      sonar.tests=tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml
+      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj1-coverage.xml
+
+# --- Proj2 Block ---
+- script: |
+    pip install -e ./proj2
+    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
+    pytest proj2/tests \
+      --junitxml=proj2-results.xml \
+      --cov=. \
+      --cov-report=xml:proj2-coverage.xml
+  displayName: 'Run proj2 Tests'
+  condition: eq(variables['DetermineChanges.runProj2'], 'true')
+
+- task: SonarQubePrepare@8
+  condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runPymath'], 'true'))
+  inputs:
+    SonarQube: 'monorepo20261'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '$(proj2Key)'
+    extraProperties: |
+      sonar.projectBaseDir=proj2
+      sonar.sources=.
+      sonar.tests=tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml
+      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj2-coverage.xml
+
+# 3. Analyze & Publish (Combined)
+- task: SonarQubeAnalyze@8
+  condition: eq(variables['python.version'], '3.11')
+  displayName: 'Run Sonar Analysis'
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '*-results.xml'
