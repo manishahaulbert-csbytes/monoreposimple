@@ -98,7 +98,7 @@ steps:
   condition: eq(variables['DetermineChanges.runProj2'], 'true')
 
 - task: SonarQubePrepare@8
-  condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runPymath'], 'true'))
+  condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runProj2'], 'true'))
   inputs:
     SonarQube: 'monorepo20261'
     scannerMode: 'CLI'
