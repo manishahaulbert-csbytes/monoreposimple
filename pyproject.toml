@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "monoreposimple"
+version = "0.1.0"
+description = "Simple monorepo with proj1 and proj2"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["proj1/tests", "proj2/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["proj1", "proj2"]
+package-dir = {"" = "."}
+
+[tool.setuptools.package-data]
+"*" = ["*.py"]
