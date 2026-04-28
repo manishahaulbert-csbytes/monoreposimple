@@ -1,0 +1,9 @@
+proj1/__pycache__/
+proj2/__pycache__/
+proj1/tests/__pycache__/
+proj2/tests/__pycache__/
+test-output.xml
+coverage.xml
+.pytest_cache/
+*.xml
+.coverage

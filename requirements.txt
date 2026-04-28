@@ -1,0 +1,7 @@
+pytest >= 6.0
+coverage >= 5.0
+pytest-cov >= 2.0
+pytest-azurepipelines>=1.0.0
+cov >= 5.0
+nunit >= 3.0
+xmlrunner >= 1.7.7
