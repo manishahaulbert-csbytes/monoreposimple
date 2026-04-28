@@ -10,3 +10,6 @@ coverage.xml
 monoreposimple.egg-info/
 dist/
 build/
+.scannoreports/
+.scannerwork/
+
