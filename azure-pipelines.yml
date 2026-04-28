@@ -115,6 +115,10 @@ steps:
 - task: SonarQubeAnalyze@8
   condition: eq(variables['python.version'], '3.11')
   displayName: 'Run Sonar Analysis'
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+  env:
+    SONAR_SCANNER_OPTS: '-X'
 
 - task: PublishTestResults@2
   condition: succeededOrFailed()
