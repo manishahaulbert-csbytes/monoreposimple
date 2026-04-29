@@ -65,17 +65,6 @@ steps:
     pip install pytest pytest-cov
   displayName: 'Install Base Tools'
 
-# --- Proj2 Block ---
-- script: |
-    pip install -e ./proj2
-    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
-    pytest proj2/tests \
-      --junitxml=proj2-results.xml \
-      --cov=. \
-      --cov-report=xml:proj2-coverage.xml
-  displayName: 'Run proj2 Tests'
-  condition: eq(variables['DetermineChanges.runProj2'], 'true')
-
 - task: SonarQubePrepare@8
   condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runProj2'], 'true'))
   inputs:
@@ -91,7 +80,18 @@ steps:
       sonar.exclusions=tests/**
       sonar.tests=tests
       sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml
-      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj2-coverage.xml
+      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/coverage.xml
+
+  # --- Proj2 Block ---
+- script: |
+    pip install -e ./proj2
+    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
+    pytest proj2/tests \
+      --junitxml=proj2-results.xml \
+      --cov=. \
+      --cov-report=xml:coverage.xml
+  displayName: 'Run proj2 Tests'
+  condition: eq(variables['DetermineChanges.runProj2'], 'true')
 
 # 3. Analyze & Publish (Combined)
 - task: SonarQubeAnalyze@8
