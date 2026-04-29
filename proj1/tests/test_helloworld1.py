@@ -15,11 +15,11 @@ def test_helloworld1_not_helloworld2():
 
 def test_helloworld1_not_helloworld2_not_helloworld3():
     print("Running test_helloworld1_not_helloworld2_not_helloworld3")
-    assert hw.j1 == "hello world3"
+    assert hw.j1 <> "hello world3"
 
 def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4():
     print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4")
-    assert hw.j1 == "hello world4"
+    assert hw.j1 <> "hello world4"
 
 def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5():
     print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5")
