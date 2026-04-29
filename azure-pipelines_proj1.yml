@@ -7,11 +7,16 @@ trigger:
 - master
 - develop
 - feature/**
-
+paths:
+    include:
+      - proj1/**
 pr:
 - master
 - main
 - develop
+paths:
+    include:
+      - proj1/**
 
 pool:
   vmImage: ubuntu-latest
