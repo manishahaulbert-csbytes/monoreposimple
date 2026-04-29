@@ -104,7 +104,7 @@ steps:
 
 - task: SonarQubeAnalyze@8
   displayName: 'Run Sonar Analysis for Proj1'
-  condition: and(succeeded(), eq(variables['python.version'], '3.11'),
+  condition: and(eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj1'], 'true'))
   continueOnError: false
   inputs:
@@ -147,7 +147,7 @@ steps:
 - task: SonarQubeAnalyze@8
   displayName: 'Run Sonar Analysis for Proj2'
   continueOnError: false
-  condition: and(succeeded(), eq(variables['python.version'], '3.11'),
+  condition: and(eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj2'], 'true')) # Crucial: runs even if tests fail
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
