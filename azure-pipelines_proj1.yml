@@ -83,6 +83,9 @@ steps:
     configMode: 'manual'
     cliProjectKey: '$(proj1Key)'
     extraProperties: |
+      sonar.qualitygate.wait=true
+      sonar.qualitygate.timeout=600
+      sonar.verbose=true
       sonar.projectBaseDir=proj1
       sonar.sources=.
       sonar.exclusions=tests/**
@@ -92,12 +95,11 @@ steps:
 
 # 3. Analyze & Publish (Combined)
 - task: SonarQubeAnalyze@8
+  continueOnError: false
   condition: eq(variables['python.version'], '3.11')
   displayName: 'Run Sonar Analysis'
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
-  env:
-    SONAR_SCANNER_OPTS: '-X'
 
 - task: PublishTestResults@2
   condition: succeededOrFailed()
