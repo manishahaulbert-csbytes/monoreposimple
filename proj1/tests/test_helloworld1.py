@@ -17,3 +17,7 @@ def test_helloworld1_not_helloworld2_not_helloworld3():
 def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4():
     print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4")
     assert hw.j1 != "hello world4"
+
+def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5():
+    print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5")
+    assert hw.j1 != "hello world5"
