@@ -22,7 +22,6 @@ strategy:
       python.version: '3.11'
 
 variables:
-  proj1Key: 'manishahaulbert-csbytes_proj1'
   proj2Key: 'manishahaulbert-csbytes_proj2'
 
 steps:
@@ -40,21 +39,11 @@ steps:
 - script: |
     # Check for changes in specific directories
     CHANGED_FILES=$(git diff --name-only HEAD~1)
-    echo "Files changed: $CHANGED_FILES"
-    
-    if echo "$CHANGED_FILES" | grep -q "proj1"; then
-      echo "##vso[task.setvariable variable=runProj1;isOutput=true]true"
-      echo "Detected changes in Proj1"
-    fi
-    
+    echo "Files changed: $CHANGED_FILES"    
+   
     if echo "$CHANGED_FILES" | grep -q "proj2"; then
       echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
       echo "Detected changes in Proj2"
-    fi
-    if [ -z "$runProj1" ] && [ -z "$runProj2" ]; then
-        echo "No changes detected in Proj1 or Proj2, both should run by default"
-        echo "##vso[task.setvariable variable=runProj1;isOutput=true]true"
-        echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
     fi
 
   name: DetermineChanges
@@ -65,32 +54,6 @@ steps:
     python -m pip install --upgrade pip
     pip install pytest pytest-cov
   displayName: 'Install Base Tools'
-
-# --- Proj1 Block ---
-- script: |
-    pip install -e ./proj1
-    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
-    pytest proj1/tests \
-      --junitxml=proj1-results.xml \
-      --cov=proj1 \
-      --cov-report=xml:proj1-coverage.xml
-  displayName: 'Run Proj1 Tests'
-  condition: eq(variables['DetermineChanges.runProj1'], 'true')
-
-- task: SonarQubePrepare@8
-  condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runProj1'], 'true'))
-  inputs:
-    SonarQube: 'monorepo20261'
-    scannerMode: 'CLI'
-    configMode: 'manual'
-    cliProjectKey: '$(proj1Key)'
-    extraProperties: |
-      sonar.projectBaseDir=proj1
-      sonar.sources=helloworld1.py
-      sonar.exclusions=tests/**
-      sonar.tests=tests
-      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml
-      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj1-coverage.xml
 
 # --- Proj2 Block ---
 - script: |
@@ -122,10 +85,6 @@ steps:
 - task: SonarQubeAnalyze@8
   condition: eq(variables['python.version'], '3.11')
   displayName: 'Run Sonar Analysis'
-  inputs:
-    jdkversion: 'JAVA_HOME_17_X64'
-  env:
-    SONAR_SCANNER_OPTS: '-X'
 
 - task: PublishTestResults@2
   condition: succeededOrFailed()
