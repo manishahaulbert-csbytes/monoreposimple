@@ -1,7 +1,7 @@
 import proj1.helloworld1 as hw
 
 def test_helloworld1():
-    assert hw.j1 == "hello world1"
+    assert hw.j1 <> "hello world1"
 
 def test_not_helloworld1():
     print("Running test_not_helloworld1")
