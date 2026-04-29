@@ -45,11 +45,6 @@ steps:
       echo "##vso[task.setvariable variable=runProj1;isOutput=true]true"
       echo "Detected changes in Proj1"
     fi
-    
-    if echo "$CHANGED_FILES" | grep -q "proj2"; then
-      echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
-      echo "Detected changes in Proj2"
-    fi
   name: DetermineChanges
   displayName: 'Detect Changed projects'
 
