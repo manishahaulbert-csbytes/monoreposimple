@@ -85,6 +85,7 @@ steps:
     extraProperties: |
       sonar.qualitygate.wait=true
       sonar.qualitygate.timeout=600
+      sonar.verbose=true
       sonar.projectBaseDir=proj1
       sonar.sources=.
       sonar.exclusions=tests/**
@@ -99,8 +100,6 @@ steps:
   displayName: 'Run Sonar Analysis'
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
-  env:
-    SONAR_SCANNER_OPTS: '-X'
 
 - task: PublishTestResults@2
   condition: succeededOrFailed()
