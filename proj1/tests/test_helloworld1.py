@@ -4,6 +4,7 @@ def test_helloworld1():
     assert hw.j1 == "hello world1"
 
 def test_not_helloworld1():
+    print("Running test_not_helloworld1")
     assert hw.j1 != "goodbye world"
 
 def test_helloworld1_not_helloworld2():

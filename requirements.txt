@@ -5,3 +5,5 @@ pytest-azurepipelines>=1.0.0
 cov >= 5.0
 nunit >= 3.0
 xmlrunner >= 1.7.7
+junit-xml >= 1.0
+pytest-xdist >= 2.0

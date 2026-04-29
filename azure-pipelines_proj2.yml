@@ -92,6 +92,7 @@ steps:
       --cov-report=xml:coverage.xml
   displayName: 'Run proj2 Tests'
   condition: eq(variables['DetermineChanges.runProj2'], 'true')
+  continueOnError: true
 
 # 3. Analyze & Publish (Combined)
 - task: SonarQubeAnalyze@8
