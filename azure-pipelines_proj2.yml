@@ -4,18 +4,22 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- master
-- develop
-- feature/**
-paths:
+  branches:
+    include:
+      - master
+      - develop
+      - feature/*
+  paths:
     include:
       - proj2/**
 
 pr:
-- master
-- main
-- develop
-paths:
+  branches:
+    include:
+      - master
+      - main
+      - develop
+  paths:
     include:
       - proj2/**
 
