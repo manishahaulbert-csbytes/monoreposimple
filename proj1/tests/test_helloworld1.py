@@ -20,4 +20,5 @@ def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4():
 
 def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5():
     print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5")
+    print("This test should fail because j1 is not equal to 'hello world5'")
     assert hw.j1 != "hello world5"
