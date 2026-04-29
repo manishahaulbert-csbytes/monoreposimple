@@ -100,12 +100,13 @@ steps:
       --cov-report=xml:proj1-coverage.xml
   displayName: 'Run Proj1 Tests'
   condition: eq(variables['DetermineChanges.runProj1'], 'true')
-  continueOnError: true
+  continueOnError: true  # Set to true to ensure SonarQube runs even if tests fail
 
 - task: SonarQubeAnalyze@8
   displayName: 'Run Sonar Analysis for Proj1'
-  condition: and(eq(variables['python.version'], '3.11'),
+  condition: and(succeeded(), eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj1'], 'true'))
+  continueOnError: false
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
 
@@ -141,13 +142,13 @@ steps:
       --cov-report=xml:proj2-coverage.xml
   displayName: 'Run Proj2 Tests'
   condition: eq(variables['DetermineChanges.runProj2'], 'true')
-  continueOnError: true
+  continueOnError: true  # Set to false to ensure SonarQube runs even if tests fail
 
 - task: SonarQubeAnalyze@8
   displayName: 'Run Sonar Analysis for Proj2'
-  condition: and(eq(variables['python.version'], '3.11'),
-                eq(variables['DetermineChanges.runProj2'], 'true'),
-                succeededOrFailed()) # Crucial: runs even if tests fail
+  continueOnError: false
+  condition: and(succeeded(), eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj2'], 'true')) # Crucial: runs even if tests fail
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
 

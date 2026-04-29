@@ -5,7 +5,7 @@ def test_helloworld1():
 
 def test_not_helloworld1():
     print("Running test_not_helloworld1")
-    assert hw.j1 <> "goodbye world"
+    assert hw.j1 == "goodbye world"
 
 def test_helloworld1_not_helloworld2():
     print("Running test_helloworld1_not_helloworld2")
@@ -26,3 +26,11 @@ def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_hellowo
     print("This test should fail because j1 is not equal to 'hello world5'")
     print(f"Value of j1: {hw.j1}")
     assert hw.j1 <> "hello world5"
+
+def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6():
+    print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6")
+    assert hw.j1 <> "hello world6"
+
+def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6_not_helloworld7():
+    print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6_not_helloworld7")
+    assert hw.j1 <> "hello world7"
