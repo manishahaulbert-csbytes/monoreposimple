@@ -1,0 +1,165 @@
+# Python monorepo: proj1 + proj2
+
+trigger:
+  branches:
+    include:
+      - master
+      - develop
+      - feature/*
+  paths:
+    include:
+      - proj1/**
+      - proj2/**
+
+pr:
+  branches:
+    include:
+      - master
+      - main
+      - develop
+  paths:
+    include:
+      - proj1/**
+      - proj2/**
+
+pool:
+  vmImage: ubuntu-latest
+
+strategy:
+  matrix:
+    Python311:
+      python.version: '3.11'
+
+variables:
+  proj1Key: 'manishahaulbert-csbytes_proj1'
+  proj2Key: 'manishahaulbert-csbytes_proj2'
+
+steps:
+- checkout: self
+  fetchDepth: 0
+  lfs: true
+  displayName: 'Checkout Source Code'
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+# 1. Detect Changes
+- script: |
+    CHANGED_FILES=$(git diff --name-only HEAD~1)
+    echo "Files changed: $CHANGED_FILES"
+
+    if echo "$CHANGED_FILES" | grep -q "proj1/"; then
+      echo "##vso[task.setvariable variable=runProj1;isOutput=true]true"
+      echo "Detected changes in Proj1"
+    fi
+
+    if echo "$CHANGED_FILES" | grep -q "proj2/"; then
+      echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
+      echo "Detected changes in Proj2"
+    fi
+  name: DetermineChanges
+  displayName: 'Detect Changed projects'
+
+# 2. Install Dependencies (Global)
+- script: |
+    python -m pip install --upgrade pip
+    pip install pytest pytest-cov
+  displayName: 'Install Base Tools'
+
+##################################################
+# Proj1 block
+##################################################
+- task: SonarQubePrepare@8
+  displayName: 'Prepare SonarQube for Proj1'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj1'], 'true'))
+  inputs:
+    SonarQube: 'monorepo20261'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '$(proj1Key)'
+    extraProperties: |
+      sonar.qualitygate.wait=true
+      sonar.qualitygate.timeout=600
+      sonar.verbose=true
+      sonar.projectBaseDir=$(System.DefaultWorkingDirectory)
+      sonar.sources=proj1
+      sonar.exclusions=proj1/tests/**
+      sonar.tests=proj1/tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml
+      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj1-coverage.xml
+
+- script: |
+    pip install -e ./proj1
+    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
+    pytest proj1/tests \
+      --junitxml=proj1-results.xml \
+      --cov=proj1 \
+      --cov-report=xml:proj1-coverage.xml
+  displayName: 'Run Proj1 Tests'
+  condition: eq(variables['DetermineChanges.runProj1'], 'true')
+  continueOnError: true
+
+- task: SonarQubeAnalyze@8
+  displayName: 'Run Sonar Analysis for Proj1'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj1'], 'true'))
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+
+##################################################
+# Proj2 block
+##################################################
+- task: SonarQubePrepare@8
+  displayName: 'Prepare SonarQube for Proj2'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj2'], 'true'))
+  inputs:
+    SonarQube: 'monorepo20261'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '$(proj2Key)'
+    extraProperties: |
+      sonar.qualitygate.wait=true
+      sonar.qualitygate.timeout=600
+      sonar.verbose=true
+      sonar.projectBaseDir=$(System.DefaultWorkingDirectory)
+      sonar.sources=proj2
+      sonar.exclusions=proj2/tests/**
+      sonar.tests=proj2/tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml
+      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj2-coverage.xml
+
+- script: |
+    pip install -e ./proj2
+    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
+    pytest proj2/tests \
+      --junitxml=proj2-results.xml \
+      --cov=proj2 \
+      --cov-report=xml:proj2-coverage.xml
+  displayName: 'Run Proj2 Tests'
+  condition: eq(variables['DetermineChanges.runProj2'], 'true')
+  continueOnError: true
+
+- task: SonarQubeAnalyze@8
+  displayName: 'Run Sonar Analysis for Proj2'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj2'], 'true'),
+                succeededOrFailed()) # Crucial: runs even if tests fail
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+
+# 3. Publish test results for any project that ran
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '*-results.xml'
+
+  # This is the "Wait" task that will fail the build if the Gate is Red
+- task: sonar-quality-gate-check@1
+  displayName: 'Check Quality Gate'
+  inputs:
+    pollingTimeoutSec: '600'
+  condition: succeededOrFailed() # Ensures you get a report even on broken builds

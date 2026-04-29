@@ -108,3 +108,9 @@ steps:
   condition: succeededOrFailed()
   inputs:
     testResultsFiles: '*-results.xml'
+
+    # This is the "Wait" task that will fail the build if the Gate is Red
+- task: sonar-quality-gate-check@1
+  displayName: 'Check Quality Gate'
+  inputs:
+    pollingTimeoutSec: '600'  
