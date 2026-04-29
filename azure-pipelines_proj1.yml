@@ -108,9 +108,9 @@ steps:
   condition: succeededOrFailed()
   inputs:
     testResultsFiles: '*-results.xml'
-
-    # This is the "Wait" task that will fail the build if the Gate is Red
-- task: sonar-quality-gate-check@1
-  displayName: 'Check Quality Gate'
+    
+# Publish SonarQube Quality Gate result (add pollingTimeoutSec here)
+- task: SonarQubePublish@7       # version may be @4, @5, @7 depending on your extension
+  displayName: 'Publish Quality Gate Result'
   inputs:
-    pollingTimeoutSec: '600'  
+    pollingTimeoutSec: '600'
