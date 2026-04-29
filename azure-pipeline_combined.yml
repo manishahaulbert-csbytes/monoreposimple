@@ -100,7 +100,7 @@ steps:
       --cov-report=xml:proj1-coverage.xml
   displayName: 'Run Proj1 Tests'
   condition: eq(variables['DetermineChanges.runProj1'], 'true')
-  continueOnError: true
+  continueOnError: false # Important: fail the job if tests fail, so SonarQubeAnalyze runs with correct context
 
 - task: SonarQubeAnalyze@8
   displayName: 'Run Sonar Analysis for Proj1'
@@ -141,7 +141,7 @@ steps:
       --cov-report=xml:proj2-coverage.xml
   displayName: 'Run Proj2 Tests'
   condition: eq(variables['DetermineChanges.runProj2'], 'true')
-  continueOnError: true
+  continueOnError: false # Important: fail the job if tests fail, so SonarQubeAnalyze runs with correct context
 
 - task: SonarQubeAnalyze@8
   displayName: 'Run Sonar Analysis for Proj2'
