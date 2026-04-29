@@ -10,3 +10,12 @@ coverage.xml
 monoreposimple.egg-info/
 dist/
 build/
+.scannerwork/
+htmlcov/    
+proj1/.scannerwork/
+proj2/.scannerwork/
+proj1/coverage/
+proj2/coverage/
+proj1/coverage.xml
+proj2/coverage.xml
+test-output.xml
