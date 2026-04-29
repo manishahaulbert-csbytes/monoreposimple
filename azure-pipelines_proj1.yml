@@ -23,7 +23,6 @@ strategy:
 
 variables:
   proj1Key: 'manishahaulbert-csbytes_proj1'
-  proj2Key: 'manishahaulbert-csbytes_proj2'
 
 steps:
 - checkout: self
@@ -51,12 +50,6 @@ steps:
       echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
       echo "Detected changes in Proj2"
     fi
-    if [ -z "$runProj1" ] && [ -z "$runProj2" ]; then
-        echo "No changes detected in Proj1 or Proj2, both should run by default"
-        echo "##vso[task.setvariable variable=runProj1;isOutput=true]true"
-        echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
-    fi
-
   name: DetermineChanges
   displayName: 'Detect Changed projects'
 
@@ -86,37 +79,11 @@ steps:
     cliProjectKey: '$(proj1Key)'
     extraProperties: |
       sonar.projectBaseDir=proj1
-      sonar.sources=helloworld1.py
+      sonar.sources=.
       sonar.exclusions=tests/**
       sonar.tests=tests
       sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml
       sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj1-coverage.xml
-
-# --- Proj2 Block ---
-- script: |
-    pip install -e ./proj2
-    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
-    pytest proj2/tests \
-      --junitxml=proj2-results.xml \
-      --cov=. \
-      --cov-report=xml:proj2-coverage.xml
-  displayName: 'Run proj2 Tests'
-  condition: eq(variables['DetermineChanges.runProj2'], 'true')
-
-- task: SonarQubePrepare@8
-  condition: and(eq(variables['python.version'], '3.11'), eq(variables['DetermineChanges.runProj2'], 'true'))
-  inputs:
-    SonarQube: 'monorepo20261'
-    scannerMode: 'CLI'
-    configMode: 'manual'
-    cliProjectKey: '$(proj2Key)'
-    extraProperties: |
-      sonar.projectBaseDir=proj2
-      sonar.sources=helloworld2.py
-      sonar.exclusions=tests/**
-      sonar.tests=tests
-      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml
-      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj2-coverage.xml
 
 # 3. Analyze & Publish (Combined)
 - task: SonarQubeAnalyze@8
