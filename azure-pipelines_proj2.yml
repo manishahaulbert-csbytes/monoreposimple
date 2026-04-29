@@ -75,11 +75,11 @@ steps:
     extraProperties: |
       sonar.qualitygate.wait=true
       sonar.qualitygate.timeout=600
-      sonar.projectBaseDir=proj2
-      sonar.sources=helloworld2.py
-      sonar.exclusions=tests/**
-      sonar.tests=tests
-      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml
+      sonar.projectBaseDir=$(System.DefaultWorkingDirectory)
+      sonar.sources=proj2
+      sonar.exclusions=proj2/tests/** 
+      sonar.tests=proj2/tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml      
       sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/coverage.xml
 
   # --- Proj2 Block ---

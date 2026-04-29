@@ -77,11 +77,11 @@ steps:
       sonar.qualitygate.wait=true
       sonar.qualitygate.timeout=600
       sonar.verbose=true
-      sonar.projectBaseDir=proj1
-      sonar.sources=.
-      sonar.exclusions=tests/**
-      sonar.tests=tests
-      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml
+      sonar.projectBaseDir=$(System.DefaultWorkingDirectory)
+      sonar.sources=proj1
+      sonar.exclusions=proj1/tests/** 
+      sonar.tests=proj1/tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml      
       sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/coverage.xml
 
       
