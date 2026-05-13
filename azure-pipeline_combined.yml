@@ -119,7 +119,7 @@ steps:
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
 
-- task: SonarQubePublish@7
+- task: SonarQubePublish@8
   displayName: 'Publish Quality Gate Result for Proj1'
   condition: and(eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj1'], 'true'))
@@ -170,7 +170,7 @@ steps:
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
 
-- task: SonarQubePublish@7
+- task: SonarQubePublish@8
   displayName: 'Publish Quality Gate Result for Proj2'
   condition: and(eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj2'], 'true'))
@@ -221,7 +221,7 @@ steps:
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
 
-- task: SonarQubePublish@7
+- task: SonarQubePublish@8
   displayName: 'Publish Quality Gate Result for Proj3'
   condition: and(eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj3'], 'true'))
