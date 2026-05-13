@@ -1,0 +1,1 @@
+powershell -NoProfile -ExecutionPolicy Bypass -File .\launch_mcp_server.ps1

@@ -1,4 +1,4 @@
-# Python monorepo: proj1 + proj2
+# Python monorepo: proj1 + proj2 + proj3
 
 trigger:
   branches:
@@ -10,6 +10,7 @@ trigger:
     include:
       - proj1/**
       - proj2/**
+      - proj3/**
 
 pr:
   branches:
@@ -21,6 +22,7 @@ pr:
     include:
       - proj1/**
       - proj2/**
+      - proj3/**
 
 pool:
   vmImage: ubuntu-latest
@@ -33,6 +35,7 @@ strategy:
 variables:
   proj1Key: 'manishahaulbert-csbytes_proj1'
   proj2Key: 'manishahaulbert-csbytes_proj2'
+  proj3Key: 'manishahaulbert-csbytes_proj3'
 
 steps:
 - checkout: self
@@ -58,6 +61,11 @@ steps:
     if echo "$CHANGED_FILES" | grep -q "proj2/"; then
       echo "##vso[task.setvariable variable=runProj2;isOutput=true]true"
       echo "Detected changes in Proj2"
+    fi
+
+    if echo "$CHANGED_FILES" | grep -q "proj3/"; then
+      echo "##vso[task.setvariable variable=runProj3;isOutput=true]true"
+      echo "Detected changes in Proj3"
     fi
   name: DetermineChanges
   displayName: 'Detect Changed projects'
@@ -90,6 +98,7 @@ steps:
       sonar.tests=proj1/tests
       sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj1-results.xml
       sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj1-coverage.xml
+      sonar.scanner.metaDataFilePath=$(Agent.TempDirectory)/sonar-proj1.properties
 
 - script: |
     pip install -e ./proj1
@@ -108,6 +117,14 @@ steps:
                 eq(variables['DetermineChanges.runProj1'], 'true'))
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
+
+- task: SonarQubePublish@7
+  displayName: 'Publish Quality Gate Result for Proj1'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj1'], 'true'))
+  inputs:
+    pollingTimeoutSec: '600'
+    reportTaskFile: '$(Agent.TempDirectory)/sonar-proj1.properties'
 
 ##################################################
 # Proj2 block
@@ -131,6 +148,7 @@ steps:
       sonar.tests=proj2/tests
       sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj2-results.xml
       sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj2-coverage.xml
+      sonar.scanner.metaDataFilePath=$(Agent.TempDirectory)/sonar-proj2.properties
 
 - script: |
     pip install -e ./proj2
@@ -147,9 +165,68 @@ steps:
   displayName: 'Run Sonar Analysis for Proj2'
   condition: and(eq(variables['python.version'], '3.11'),
                 eq(variables['DetermineChanges.runProj2'], 'true'),
-                succeededOrFailed()) # Crucial: runs even if tests fail
+                succeededOrFailed())
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
+
+- task: SonarQubePublish@7
+  displayName: 'Publish Quality Gate Result for Proj2'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj2'], 'true'))
+  inputs:
+    pollingTimeoutSec: '600'
+    reportTaskFile: '$(Agent.TempDirectory)/sonar-proj2.properties'
+
+##################################################
+# Proj3 block
+##################################################
+- task: SonarQubePrepare@8
+  displayName: 'Prepare SonarQube for Proj3'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj3'], 'true'))
+  inputs:
+    SonarQube: 'monorepo20261'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '$(proj3Key)'
+    extraProperties: |
+      sonar.qualitygate.wait=true
+      sonar.qualitygate.timeout=600
+      sonar.verbose=true
+      sonar.projectBaseDir=$(System.DefaultWorkingDirectory)
+      sonar.sources=proj3
+      sonar.exclusions=proj3/tests/**
+      sonar.tests=proj3/tests
+      sonar.python.xunit.reportPath=$(System.DefaultWorkingDirectory)/proj3-results.xml
+      sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/proj3-coverage.xml
+      sonar.scanner.metaDataFilePath=$(Agent.TempDirectory)/sonar-proj3.properties
+
+- script: |
+    pip install -e ./proj3
+    export PYTHONPATH="$(System.DefaultWorkingDirectory)"
+    pytest proj3/tests \
+      --junitxml=proj3-results.xml \
+      --cov=proj3 \
+      --cov-report=xml:proj3-coverage.xml
+  displayName: 'Run Proj3 Tests'
+  condition: eq(variables['DetermineChanges.runProj3'], 'true')
+  continueOnError: true
+
+- task: SonarQubeAnalyze@8
+  displayName: 'Run Sonar Analysis for Proj3'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj3'], 'true'),
+                succeededOrFailed())
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+
+- task: SonarQubePublish@7
+  displayName: 'Publish Quality Gate Result for Proj3'
+  condition: and(eq(variables['python.version'], '3.11'),
+                eq(variables['DetermineChanges.runProj3'], 'true'))
+  inputs:
+    pollingTimeoutSec: '600'
+    reportTaskFile: '$(Agent.TempDirectory)/sonar-proj3.properties'
 
 # 3. Publish test results for any project that ran
 - task: PublishTestResults@2
@@ -157,8 +234,3 @@ steps:
   inputs:
     testResultsFiles: '*-results.xml'
 
-# Publish SonarQube Quality Gate result (add pollingTimeoutSec here)
-- task: SonarQubePublish@7       # version may be @4, @5, @7 depending on your extension
-  displayName: 'Publish Quality Gate Result'
-  inputs:
-    pollingTimeoutSec: '600'

@@ -1,0 +1,23 @@
+{
+  // MCP server definitions for local stdio and shared HTTPS access.
+  "servers": {
+    "sonarqube": {
+      // Local stdio mode: runs SonarQube MCP server from local JAR.
+      "command": "java",
+      "args": ["-jar", "C:/installs/mcp/sonarqube-mcp-server/build/libs/sonarqube-mcp-server-1.19-SNAPSHOT.jar"],
+      "env": {
+        "STORAGE_PATH": "C:/installs/mcp/sonarqube-mcp-storage",
+        "SONARQUBE_TOKEN": "${env:SONARQUBE_TOKEN}",
+        "SONARQUBE_URL": "https://mhaulbert-sonarqube20261.ngrok.io/"
+      }
+    },
+    "sonarqube_https": {
+      // Remote HTTPS mode: connect to a shared team MCP endpoint.
+      "url": "https://mhaulbert-sonarqube-mcp.ngrok.io/mcp",
+      // Optional reference: "SONARQUBE_TOKEN": "${env:SONARQUBE_TOKEN}"
+      "headers": {
+        "Authorization": "Bearer ${env:SONARQUBE_TOKEN}"
+      }
+    }
+  }
+}
