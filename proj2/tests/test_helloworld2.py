@@ -40,3 +40,9 @@ def test_helloworld2_not_helloworld6():
     print(f"Value of j2: {hw2.j2}")
     print("This test should fail because j2 is not equal to 'hello world6'")
     assert hw2.j2 != "hello world6"
+
+def test_helloworld2_not_helloworld7():
+    print("Running test_helloworld2_not_helloworld7")
+    print(f"Value of j2: {hw2.j2}")
+    print("This test should fail because j2 is not equal to 'hello world7'")
+    assert hw2.j2 != "hello world7"

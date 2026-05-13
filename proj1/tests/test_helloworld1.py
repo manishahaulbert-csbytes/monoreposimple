@@ -30,3 +30,9 @@ def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_hellowo
 def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6():
     print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6")
     assert hw.j1 == "hello world6"
+
+def test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6_not_helloworld7():
+    print("Running test_helloworld1_not_helloworld2_not_helloworld3_not_helloworld4_not_helloworld5_not_helloworld6_not_helloworld7")
+    print("This test should fail because j1 is not equal to 'hello world7'")
+    print(f"Value of j1: {hw.j1}")
+    assert hw.j1 != "hello world7"
