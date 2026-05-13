@@ -11,3 +11,6 @@ def test_helloworld3_not_helloworld1():
 
 def test_helloworld3_not_helloworld2():
     assert hw.j3 != "hello world2"
+
+def test_helloworld3_not_helloworld4():
+    assert hw.j3 != "hello world4"
